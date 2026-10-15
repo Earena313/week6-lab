@@ -1,10 +1,11 @@
 package store
 
-import{
-     "context"
+import (
+    "context"
     "errors"
+
     "github.com/jackc/pgx/v5"
-}
+)
 
 type Movie struct {
     ID      int64   `json:"id"`
