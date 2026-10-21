@@ -16,6 +16,7 @@ type Movie struct {
     Rating  float64 `json:"rating"`
     Poster  *string `json:"poster"`
 }
+
 // SearchMovies ค่าจากผู้ใช้เดินทางผ่าน $1 แยกจากคำสั่งเสมอ
 func (s *Store) SearchMovies(ctx context.Context, q string) ([]Movie, error) {
     rows, err := s.Pool.Query(ctx,
@@ -25,8 +26,7 @@ func (s *Store) SearchMovies(ctx context.Context, q string) ([]Movie, error) {
                   WHERE mg.movie_id = m.id AND mg.position = 0),
                 extract(year FROM m.release_date)::int,
                 round(m.vote_average, 1)::float8,
-                CASE WHEN m.poster_path LIKE 'http%' THEN m.poster_path
-                     ELSE 'https://image.tmdb.org/t/p/w500' || m.poster_path END
+                'https://image.tmdb.org/t/p/w500' || m.poster_path
          FROM movies m
          WHERE lower(m.title) LIKE '%' || lower($1) || '%'
          ORDER BY m.popularity DESC`, q)
@@ -44,6 +44,7 @@ func (s *Store) SearchMovies(ctx context.Context, q string) ([]Movie, error) {
     }
     return out, rows.Err()
 }
+
 // MovieDetail คือหนังหนึ่งเรื่องพร้อมเรื่องย่อ ใช้กับหน้ารายละเอียด
 type MovieDetail struct {
     Movie

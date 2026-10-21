@@ -4,6 +4,7 @@ import (
 	"context"
     "errors"
     "sync"
+
 	"github.com/jackc/pgx/v5"
     "github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,7 +14,7 @@ type Menu struct {
     Name  string  `json:"name"`
     Price float64 `json:"price"`
     Type  string  `json:"type"`
-	Stock int     `json:"stock"`
+    Stock int     `json:"stock"`
 }
 
 var ErrNotFound = errors.New("menu not found")
@@ -24,16 +25,13 @@ var ErrNotFound = errors.New("menu not found")
 //     Add(m Menu) Menu
 //     Delete(id int) error
 // }
+
 type MenuStore interface {
     List(ctx context.Context, menuType string) ([]Menu, error)
     Get(ctx context.Context, id int) (Menu, error)
     Add(ctx context.Context, m Menu) (Menu, error)
     Delete(ctx context.Context, id int) error
 }
-type PostgresStore struct {
-    Pool *pgxpool.Pool
-}
-
 
 type MemoryStore struct {
     mu     sync.RWMutex
@@ -100,6 +98,11 @@ func (s *MemoryStore) Delete(id int) error {
     }
     return ErrNotFound
 }
+
+type PostgresStore struct {
+    Pool *pgxpool.Pool
+}
+
 func (s *PostgresStore) List(ctx context.Context, menuType string) ([]Menu, error) {
     rows, err := s.Pool.Query(ctx,
         `SELECT id, name, price, type, stock FROM menus
@@ -129,6 +132,7 @@ func (s *PostgresStore) Get(ctx context.Context, id int) (Menu, error) {
     }
     return m, err
 }
+
 func (s *PostgresStore) Add(ctx context.Context, m Menu) (Menu, error) {
     err := s.Pool.QueryRow(ctx,
         `INSERT INTO menus (name, price, type, stock)

@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	 ctx := context.Background()
+	ctx := context.Background()
 
     cfg, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
     if err != nil { log.Fatal(err) }
@@ -31,9 +31,9 @@ func main() {
 
     if err := pool.Ping(ctx); err != nil { log.Fatal("ต่อคลังไม่ติด ", err) }
     log.Println("ต่อคลังของติดแล้ว")
-    // h := &handler.Handler{Store: store.NewMemoryStore()}
-	h := &handler.Handler{Store: &store.PostgresStore{Pool: pool}}
 
+    //h := &handler.Handler{Store: store.NewMemoryStore()}
+	h := &handler.Handler{Store: &store.PostgresStore{Pool: pool}}
 
     var app http.Handler = http.TimeoutHandler(h.Routes(), 10*time.Second,
         "ครัวใช้เวลานานเกินไป")
